@@ -10,17 +10,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions: # <--- TAMBAHKAN BLOK INI
+      contents: write # Ini memberikan izin tulis ke repositori
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          # Pastikan Anda menggunakan token untuk checkout jika diperlukan izin tulis
+          token: ${{ secrets.GITHUB_TOKEN }} 
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18' # PENTING: Pastikan ini 18 atau lebih tinggi untuk fetch bawaan
+          node-version: '18'
 
       - name: Run JavaScript logic to generate API
-        run: node gen.js # Nama file skrip tetap gen.js
+        run: node gen.js
 
       - name: Commit and push generated files
         run: |
@@ -29,5 +34,6 @@ jobs:
           git add api/current_weather.json
           git commit -m "Automated: Update weather API from external API" || echo "No changes to commit"
           git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Anda tidak perlu lagi mendefinisikan GITHUB_TOKEN di env di sini
+        # karena sudah diberikan di tingkat job 'permissions' dan langkah 'checkout'.
+        # Namun, membiarkannya pun tidak akan menyebabkan error.
