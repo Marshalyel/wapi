@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cuaca Terkini Ambon</title>
+    <title>Cuaca Terkini Berbagai Lokasi</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -33,6 +33,17 @@
             margin-bottom: 20px;
             font-size: 2em;
         }
+        #location-select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            margin-bottom: 25px;
+            font-size: 1em;
+            width: 100%;
+            max-width: 300px;
+            background-color: #f8f8f8;
+            cursor: pointer;
+        }
         #weather-info p {
             font-size: 1.1em;
             margin: 10px 0;
@@ -57,9 +68,14 @@
 </head>
 <body>
     <div class="container">
-        <h1>Cuaca Terkini <span id="location-name">Ambon</span></h1>
+        <h1>Cuaca Terkini di <span id="current-location-display"></span></h1>
+        
+        <select id="location-select">
+            <option value="">Pilih Lokasi...</option>
+            </select>
+
         <div id="weather-info">
-            <p class="loading">Memuat data cuaca...</p>
+            <p class="loading">Pilih lokasi untuk melihat data cuaca.</p>
         </div>
         <div class="footer">
             <p>Data diambil dari Open-Meteo melalui API GitHub Pages Anda.</p>
@@ -69,96 +85,147 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            // Ganti ini dengan URL API GitHub Pages Anda yang sebenarnya!
-            // Contoh: 'https://YOUR_USERNAME.github.io/YOUR_REPO_NAME/api/current_weather.json'
-            const API_URL = './api/current_weather.json'; // Menggunakan jalur relatif jika index.html dan api/ berada di root
+            const API_BASE_URL = './api/'; // Base URL untuk folder API
+            const locationsIndexURL = API_BASE_URL + 'locations.json'; // URL untuk daftar lokasi
 
+            const locationSelect = document.getElementById('location-select');
             const weatherInfoDiv = document.getElementById('weather-info');
             const lastUpdatedSpan = document.getElementById('last-updated');
-            const locationNameSpan = document.getElementById('location-name');
+            const currentLocationDisplay = document.getElementById('current-location-display');
 
-            try {
-                const response = await fetch(API_URL);
-
-                if (!response.ok) {
-                    throw new Error(`Gagal mengambil data cuaca: ${response.status} ${response.statusText}`);
-                }
-
-                const data = await response.json();
-
-                // Memperbarui informasi lokasi (jika tersedia di API Anda)
-                if (data.location && data.location.timezone) {
-                    // Karena Open-Meteo memberikan timezone, kita bisa ekstrak nama kota dari sana jika ingin
-                    const timezoneParts = data.location.timezone.split('/');
-                    locationNameSpan.textContent = timezoneParts[timezoneParts.length - 1].replace('_', ' ');
-                } else {
-                    locationNameSpan.textContent = 'Ambon'; // Default jika tidak ada info lokasi
-                }
-
-
-                // Menampilkan informasi cuaca
-                weatherInfoDiv.innerHTML = `
-                    <p>Suhu: <strong>${data.current.temperature}</strong></p>
-                    <p>Kondisi: <strong>${getWeatherConditionText(data.current.weatherCode)}</strong></p>
-                    <p>Kecepatan Angin: <strong>${data.current.windSpeed}</strong></p>
-                    <p>Arah Angin: <strong>${data.current.windDirection}</strong></p>
-                    <p>Siang Hari: <strong>${data.current.isDay === 'Yes' ? 'Ya' : 'Tidak'}</strong></p>
-                `;
-
-                // Menampilkan waktu terakhir diperbarui
-                if (data.timestamp) {
-                    const date = new Date(data.timestamp);
-                    lastUpdatedSpan.textContent = date.toLocaleString('id-ID', {
-                        year: 'numeric', month: 'long', day: 'numeric',
-                        hour: '2-digit', minute: '2-digit', second: '2-digit',
-                        timeZoneName: 'short'
+            // Fungsi untuk memuat daftar lokasi ke dropdown
+            async function loadLocationsIntoDropdown() {
+                try {
+                    const response = await fetch(locationsIndexURL);
+                    if (!response.ok) {
+                        throw new Error(`Gagal memuat daftar lokasi: ${response.status} ${response.statusText}`);
+                    }
+                    const locations = await response.json();
+                    
+                    locations.forEach(loc => {
+                        const option = document.createElement('option');
+                        option.value = loc.id;
+                        option.textContent = loc.name;
+                        locationSelect.appendChild(option);
                     });
-                } else {
-                    lastUpdatedSpan.textContent = 'Tidak tersedia';
-                }
 
-            } catch (error) {
-                console.error("Terjadi kesalahan:", error);
-                weatherInfoDiv.innerHTML = `<p class="error">Gagal memuat data cuaca. Silakan coba lagi nanti.</p>`;
-                lastUpdatedSpan.textContent = 'Terjadi kesalahan';
+                    // Set default lokasi jika ada hash di URL (misal: #jakarta)
+                    const initialLocationId = window.location.hash.substring(1);
+                    if (initialLocationId && locations.some(loc => loc.id === initialLocationId)) {
+                        locationSelect.value = initialLocationId;
+                        fetchWeatherData(initialLocationId);
+                    } else {
+                        // Atau set default ke lokasi pertama jika Anda ingin
+                        // if (locations.length > 0) {
+                        //     locationSelect.value = locations[0].id;
+                        //     fetchWeatherData(locations[0].id);
+                        // }
+                    }
+
+                } catch (error) {
+                    console.error("Terjadi kesalahan saat memuat daftar lokasi:", error);
+                    weatherInfoDiv.innerHTML = `<p class="error">Gagal memuat daftar lokasi.</p>`;
+                }
+            }
+
+            // Fungsi untuk mengambil dan menampilkan data cuaca berdasarkan lokasi ID
+            async function fetchWeatherData(locationId) {
+                weatherInfoDiv.innerHTML = `<p class="loading">Memuat data cuaca untuk ${locationSelect.options[locationSelect.selectedIndex].textContent}...</p>`;
+                lastUpdatedSpan.textContent = 'Memuat...';
+                currentLocationDisplay.textContent = locationSelect.options[locationSelect.selectedIndex].textContent;
+
+                try {
+                    const API_URL = API_BASE_URL + locationId + '.json';
+                    const response = await fetch(API_URL);
+
+                    if (!response.ok) {
+                        throw new Error(`Gagal mengambil data cuaca: ${response.status} ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+
+                    // Menampilkan informasi cuaca
+                    weatherInfoDiv.innerHTML = `
+                        <p>Suhu: <strong>${data.current.temperature}</strong></p>
+                        <p>Kondisi: <strong>${getWeatherConditionText(data.current.weatherCode)}</strong></p>
+                        <p>Kecepatan Angin: <strong>${data.current.windSpeed}</strong></p>
+                        <p>Arah Angin: <strong>${data.current.windDirection}</strong></p>
+                        <p>Siang Hari: <strong>${data.current.isDay === 'Yes' ? 'Ya' : 'Tidak'}</strong></p>
+                    `;
+
+                    // Menampilkan waktu terakhir diperbarui
+                    if (data.timestamp) {
+                        const date = new Date(data.timestamp);
+                        lastUpdatedSpan.textContent = date.toLocaleString('id-ID', {
+                            year: 'numeric', month: 'long', day: 'numeric',
+                            hour: '2-digit', minute: '2-digit', second: '2-digit',
+                            timeZoneName: 'short'
+                        });
+                    } else {
+                        lastUpdatedSpan.textContent = 'Tidak tersedia';
+                    }
+
+                    // Perbarui URL hash agar bisa di-share
+                    window.location.hash = locationId;
+
+                } catch (error) {
+                    console.error("Terjadi kesalahan:", error);
+                    weatherInfoDiv.innerHTML = `<p class="error">Gagal memuat data cuaca untuk lokasi ini.</p>`;
+                    lastUpdatedSpan.textContent = 'Terjadi kesalahan';
+                }
+            }
+
+            // Event listener untuk perubahan pilihan dropdown
+            locationSelect.addEventListener('change', (event) => {
+                const selectedLocationId = event.target.value;
+                if (selectedLocationId) {
+                    fetchWeatherData(selectedLocationId);
+                } else {
+                    weatherInfoDiv.innerHTML = `<p class="loading">Pilih lokasi untuk melihat data cuaca.</p>`;
+                    lastUpdatedSpan.textContent = 'Belum diketahui';
+                    currentLocationDisplay.textContent = ''; // Kosongkan tampilan lokasi
+                }
+            });
+
+            // Muat daftar lokasi saat halaman pertama kali dimuat
+            loadLocationsIntoDropdown();
+
+            // Fungsi untuk menginterpretasikan weatherCode dari Open-Meteo
+            function getWeatherConditionText(code) {
+                // ... (Fungsi ini sama seperti sebelumnya, tidak perlu diubah) ...
+                switch(code) {
+                    case 0: return 'Cerah';
+                    case 1: return 'Sebagian Berawan';
+                    case 2: return 'Sebagian Berawan';
+                    case 3: return 'Berawan Penuh';
+                    case 45: return 'Berkabut';
+                    case 48: return 'Frost Fog';
+                    case 51: return 'Gerimis Ringan';
+                    case 53: return 'Gerimis Sedang';
+                    case 55: return 'Gerimis Lebat';
+                    case 56: return 'Gerimis Beku Ringan';
+                    case 57: return 'Gerimis Beku Lebat';
+                    case 61: return 'Hujan Ringan';
+                    case 63: return 'Hujan Sedang';
+                    case 65: return 'Hujan Lebat';
+                    case 66: return 'Hujan Beku Ringan';
+                    case 67: return 'Hujan Beku Lebat';
+                    case 71: return 'Salju Ringan';
+                    case 73: return 'Salju Sedang';
+                    case 75: return 'Salju Lebat';
+                    case 77: return 'Butiran Salju';
+                    case 80: return 'Hujan Ringan (Shower)';
+                    case 81: return 'Hujan Sedang (Shower)';
+                    case 82: return 'Hujan Lebat (Shower)';
+                    case 85: return 'Salju Ringan (Shower)';
+                    case 86: return 'Salju Lebat (Shower)';
+                    case 95: return 'Badai Petir';
+                    case 96: return 'Badai Petir dengan Hujan Es Ringan';
+                    case 99: return 'Badai Petir dengan Hujan Es Lebat';
+                    default: return 'Tidak Diketahui';
+                }
             }
         });
-
-        // Fungsi untuk menginterpretasikan weatherCode dari Open-Meteo
-        function getWeatherConditionText(code) {
-            // Referensi dari https://www.open-meteo.com/en/docs/current-weather-api
-            switch(code) {
-                case 0: return 'Cerah';
-                case 1: return 'Sebagian Berawan';
-                case 2: return 'Sebagian Berawan';
-                case 3: return 'Berawan Penuh';
-                case 45: return 'Berkabut';
-                case 48: return 'Frost Fog';
-                case 51: return 'Gerimis Ringan';
-                case 53: return 'Gerimis Sedang';
-                case 55: return 'Gerimis Lebat';
-                case 56: return 'Gerimis Beku Ringan';
-                case 57: return 'Gerimis Beku Lebat';
-                case 61: return 'Hujan Ringan';
-                case 63: return 'Hujan Sedang';
-                case 65: return 'Hujan Lebat';
-                case 66: return 'Hujan Beku Ringan';
-                case 67: return 'Hujan Beku Lebat';
-                case 71: return 'Salju Ringan';
-                case 73: return 'Salju Sedang';
-                case 75: return 'Salju Lebat';
-                case 77: return 'Butiran Salju';
-                case 80: return 'Hujan Ringan (Shower)';
-                case 81: return 'Hujan Sedang (Shower)';
-                case 82: return 'Hujan Lebat (Shower)';
-                case 85: return 'Salju Ringan (Shower)';
-                case 86: return 'Salju Lebat (Shower)';
-                case 95: return 'Badai Petir';
-                case 96: return 'Badai Petir dengan Hujan Es Ringan';
-                case 99: return 'Badai Petir dengan Hujan Es Lebat';
-                default: return 'Tidak Diketahui';
-            }
-        }
     </script>
 </body>
 </html>
