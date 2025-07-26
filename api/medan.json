@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-07-26T10:10:04.123Z",
+  "timestamp": "2025-07-26T10:10:40.099Z",
   "location": {
     "name": "Medan",
     "latitude": 3.625,
@@ -11,7 +11,7 @@
     "windSpeed": "8.2 km/h",
     "windDirection": "61°",
     "weatherCode": 96,
-    "isDay": "Yes",
+    "isDay": "Ya",
     "time": "2025-07-26T17:00"
   },
   "forecast_example": []

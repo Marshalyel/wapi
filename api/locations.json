@@ -18,5 +18,17 @@
   {
     "id": "makassar",
     "name": "Makassar"
+  },
+  {
+    "id": "bandung",
+    "name": "Bandung"
+  },
+  {
+    "id": "yogyakarta",
+    "name": "Yogyakarta"
+  },
+  {
+    "id": "padang",
+    "name": "Padang"
   }
 ]
