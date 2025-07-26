@@ -114,12 +114,10 @@
                     if (initialLocationId && locations.some(loc => loc.id === initialLocationId)) {
                         locationSelect.value = initialLocationId;
                         fetchWeatherData(initialLocationId);
-                    } else {
-                        // Atau set default ke lokasi pertama jika Anda ingin
-                        // if (locations.length > 0) {
-                        //     locationSelect.value = locations[0].id;
-                        //     fetchWeatherData(locations[0].id);
-                        // }
+                    } else if (locations.length > 0) {
+                        // Secara opsional, muat lokasi pertama secara default jika tidak ada hash
+                        locationSelect.value = locations[0].id;
+                        fetchWeatherData(locations[0].id);
                     }
 
                 } catch (error) {
@@ -130,9 +128,13 @@
 
             // Fungsi untuk mengambil dan menampilkan data cuaca berdasarkan lokasi ID
             async function fetchWeatherData(locationId) {
-                weatherInfoDiv.innerHTML = `<p class="loading">Memuat data cuaca untuk ${locationSelect.options[locationSelect.selectedIndex].textContent}...</p>`;
+                // Perbarui tampilan di header h1 sebelum memuat data
+                const selectedOptionText = locationSelect.querySelector(`option[value="${locationId}"]`).textContent;
+                currentLocationDisplay.textContent = selectedOptionText;
+
+                weatherInfoDiv.innerHTML = `<p class="loading">Memuat data cuaca untuk ${selectedOptionText}...</p>`;
                 lastUpdatedSpan.textContent = 'Memuat...';
-                currentLocationDisplay.textContent = locationSelect.options[locationSelect.selectedIndex].textContent;
+                
 
                 try {
                     const API_URL = API_BASE_URL + locationId + '.json';
@@ -150,7 +152,7 @@
                         <p>Kondisi: <strong>${getWeatherConditionText(data.current.weatherCode)}</strong></p>
                         <p>Kecepatan Angin: <strong>${data.current.windSpeed}</strong></p>
                         <p>Arah Angin: <strong>${data.current.windDirection}</strong></p>
-                        <p>Siang Hari: <strong>${data.current.isDay === 'Yes' ? 'Ya' : 'Tidak'}</strong></p>
+                        <p>Siang Hari: <strong>${data.current.isDay}</strong></p>
                     `;
 
                     // Menampilkan waktu terakhir diperbarui
@@ -165,7 +167,7 @@
                         lastUpdatedSpan.textContent = 'Tidak tersedia';
                     }
 
-                    // Perbarui URL hash agar bisa di-share
+                    // Perbarui URL hash agar bisa di-share atau di-bookmark
                     window.location.hash = locationId;
 
                 } catch (error) {
@@ -192,7 +194,7 @@
 
             // Fungsi untuk menginterpretasikan weatherCode dari Open-Meteo
             function getWeatherConditionText(code) {
-                // ... (Fungsi ini sama seperti sebelumnya, tidak perlu diubah) ...
+                // Referensi dari https://www.open-meteo.com/en/docs/current-weather-api
                 switch(code) {
                     case 0: return 'Cerah';
                     case 1: return 'Sebagian Berawan';
