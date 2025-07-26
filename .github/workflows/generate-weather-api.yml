@@ -5,24 +5,23 @@ on:
     branches:
       - main # Ganti dengan nama branch utama Anda jika bukan 'main'
   schedule:
-    - cron: '0 * * * *' # Jalankan setiap jam (ubah jika ingin lebih jarang/sering)
+    - cron: '0 * * * *' # Jalankan setiap jam pada menit ke-0 (misal, 00:00, 01:00, dst. UTC)
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions: # <--- TAMBAHKAN BLOK INI
-      contents: write # Ini memberikan izin tulis ke repositori
+    permissions:
+      contents: write # Ini memberikan izin tulis ke repositori untuk GITHUB_TOKEN
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Pastikan Anda menggunakan token untuk checkout jika diperlukan izin tulis
-          token: ${{ secrets.GITHUB_TOKEN }} 
+          token: ${{ secrets.GITHUB_TOKEN }} # Pastikan token diberikan untuk checkout
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '18' # PENTING: Gunakan Node.js 18 atau lebih tinggi untuk 'fetch' bawaan
 
       - name: Run JavaScript logic to generate API
         run: node gen.js
@@ -31,9 +30,8 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add api/current_weather.json
-          git commit -m "Automated: Update weather API from external API" || echo "No changes to commit"
+          git add api/*.json # Menambahkan semua file .json yang baru di folder api/
+          git commit -m "Automated: Update weather APIs for multiple locations" || echo "No changes to commit"
           git push
-        # Anda tidak perlu lagi mendefinisikan GITHUB_TOKEN di env di sini
-        # karena sudah diberikan di tingkat job 'permissions' dan langkah 'checkout'.
-        # Namun, membiarkannya pun tidak akan menyebabkan error.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Ini adalah secret bawaan GitHub, tidak perlu dibuat manual
