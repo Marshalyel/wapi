@@ -1,0 +1,22 @@
+{
+  "timestamp": "2025-07-26T05:02:10.334Z",
+  "location": {
+    "latitude": -3.625,
+    "longitude": 128.125,
+    "timezone": "Asia/Jakarta"
+  },
+  "current": {
+    "temperature": "28.8°C",
+    "windSpeed": "8.5 km/h",
+    "windDirection": "144°",
+    "weatherCode": 2,
+    "isDay": "Yes",
+    "time": "2025-07-26T12:00"
+  },
+  "forecast_example": [
+    {
+      "day": "Next update",
+      "description": "Based on future API calls"
+    }
+  ]
+}
