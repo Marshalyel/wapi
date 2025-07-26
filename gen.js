@@ -9,7 +9,10 @@ const LOCATIONS = [
     { name: "Jakarta", id: "jakarta", latitude: -6.2088, longitude: 106.8456, timezone: "Asia/Jakarta" },
     { name: "Surabaya", id: "surabaya", latitude: -7.2575, longitude: 112.7521, timezone: "Asia/Jakarta" },
     { name: "Medan", id: "medan", latitude: 3.5952, longitude: 98.6722, timezone: "Asia/Jakarta" },
-    { name: "Makassar", id: "makassar", latitude: -5.1477, longitude: 119.4327, timezone: "Asia/Makassar" }
+    { name: "Makassar", id: "makassar", latitude: -5.1477, longitude: 119.4327, timezone: "Asia/Makassar" },
+    { name: "Bandung", id: "bandung", latitude: -6.9175, longitude: 107.6191, timezone: "Asia/Jakarta" },
+    { name: "Yogyakarta", id: "yogyakarta", latitude: -7.7956, longitude: 110.3695, timezone: "Asia/Jakarta" },
+    { name: "Padang", id: "padang", latitude: -0.9517, longitude: 100.3546, timezone: "Asia/Jakarta" }
 ];
 
 // Pastikan direktori 'api' ada
@@ -33,10 +36,9 @@ async function fetchAndGenerateWeatherForLocation(location) {
         console.log(`Data cuaca untuk ${location.name} berhasil diambil.`);
     } catch (error) {
         console.error(`Error saat mengambil data cuaca untuk ${location.name}:`, error.message);
-        // Fallback: Jika gagal mengambil dari API, coba baca dari file lokal jika ada
-        // Untuk skenario multi-lokasi, fallback ke ws.json kurang relevan kecuali Anda punya banyak ws.json
-        // Jadi, untuk kesederhanaan, kita akan mencatat error dan melanjutkan ke lokasi berikutnya
-        // atau bisa juga menggunakan data dummy di sini
+        // Untuk skenario multi-lokasi, jika gagal mengambil, kita bisa mengembalikan null
+        // atau mencoba membaca dari file yang sudah ada jika tersedia.
+        // Untuk contoh ini, kita akan mencatat error dan melanjutkan ke lokasi berikutnya.
         console.warn(`Menggunakan data dummy atau skip untuk ${location.name} karena gagal.`);
         return null; // Mengembalikan null jika gagal
     }
@@ -47,7 +49,7 @@ async function fetchAndGenerateWeatherForLocation(location) {
     const weatherApiOutput = {
       timestamp: new Date().toISOString(),
       location: {
-        name: location.name,
+        name: location.name, // Tambahkan nama kota ke output JSON
         latitude: rawWeatherData.latitude,
         longitude: rawWeatherData.longitude,
         timezone: rawWeatherData.timezone
@@ -57,7 +59,7 @@ async function fetchAndGenerateWeatherForLocation(location) {
         windSpeed: `${currentWeather.windspeed} km/h`,
         windDirection: `${currentWeather.winddirection}°`,
         weatherCode: currentWeather.weathercode,
-        isDay: currentWeather.is_day === 1 ? 'Yes' : 'No',
+        isDay: currentWeather.is_day === 1 ? 'Ya' : 'Tidak', // Lebih ramah bahasa Indonesia
         time: currentWeather.time
       },
       // Anda bisa menambahkan data forecast di sini jika diambil dari API yang mendukungnya
@@ -82,21 +84,19 @@ async function generateAllWeatherAPIs() {
         }
     }
 
-    // Jika Anda ingin membuat satu file index yang berisi daftar lokasi yang tersedia
+    // Buat file index yang berisi daftar lokasi yang tersedia
     const indexFilePath = path.join(apiDir, 'locations.json');
     fs.writeFileSync(indexFilePath, JSON.stringify(LOCATIONS.map(loc => ({ id: loc.id, name: loc.name })), null, 2));
     generatedFiles.push(`api/locations.json`);
 
-    // Ini penting: GitHub Actions perlu mengetahui file apa saja yang berubah/dibuat
-    // untuk `git add`. Kita akan meng-add semua file .json di folder api/.
-    return generatedFiles;
+    console.log("Semua API lokasi telah dibuat/diperbarui.");
+    return generatedFiles; // Mengembalikan daftar file yang berhasil dibuat
 }
 
-// Panggil fungsi utama dan tangani hasilnya untuk git commit
+// Panggil fungsi utama
 generateAllWeatherAPIs()
-    .then(generatedFiles => {
-        // Logika `git add` akan menangani `api/*` di workflow
-        console.log("Semua API lokasi telah dibuat/diperbarui.");
+    .then(() => {
+        console.log("Proses pembuatan API cuaca selesai.");
     })
     .catch(error => {
         console.error("Kesalahan fatal saat membuat API lokasi:", error);
