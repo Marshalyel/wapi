@@ -6,7 +6,6 @@ on:
       - main # Ganti dengan nama branch utama Anda jika bukan 'main'
   schedule:
     - cron: '0 * * * *' # Jalankan setiap jam (ubah jika ingin lebih jarang/sering)
-                      # Untuk setiap hari pada pukul 00:00 UTC, gunakan '0 0 * * *'
 
 jobs:
   build:
@@ -18,17 +17,17 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18' # Pastikan versi Node.js yang kompatibel
+          node-version: '18' # PENTING: Pastikan ini 18 atau lebih tinggi untuk fetch bawaan
 
       - name: Run JavaScript logic to generate API
-        run: node gen.js # Nama file skrip diubah menjadi gen.js
+        run: node gen.js # Nama file skrip tetap gen.js
 
       - name: Commit and push generated files
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add api/current_weather.json
-          git commit -m "Automated: Update weather API" || echo "No changes to commit"
+          git commit -m "Automated: Update weather API from external API" || echo "No changes to commit"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
