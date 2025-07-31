@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-07-31T22:08:35.872Z",
+  "timestamp": "2025-07-31T23:09:11.494Z",
   "location": {
     "name": "Jakarta",
     "latitude": -6.25,
@@ -7,12 +7,12 @@
     "timezone": "Asia/Jakarta"
   },
   "current": {
-    "temperature": "24.9°C",
-    "windSpeed": "2.6 km/h",
-    "windDirection": "146°",
+    "temperature": "24.8°C",
+    "windSpeed": "2.7 km/h",
+    "windDirection": "157°",
     "weatherCode": 0,
     "isDay": "Tidak",
-    "time": "2025-08-01T05:00"
+    "time": "2025-08-01T06:00"
   },
   "forecast_example": []
 }
