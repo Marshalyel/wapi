@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-07-31T13:30:46.555Z",
+  "timestamp": "2025-07-31T14:12:07.654Z",
   "location": {
     "name": "Yogyakarta",
     "latitude": -7.875,
@@ -7,12 +7,12 @@
     "timezone": "Asia/Jakarta"
   },
   "current": {
-    "temperature": "25.6°C",
-    "windSpeed": "12.2 km/h",
-    "windDirection": "124°",
+    "temperature": "25.5°C",
+    "windSpeed": "11.5 km/h",
+    "windDirection": "122°",
     "weatherCode": 2,
     "isDay": "Tidak",
-    "time": "2025-07-31T20:30"
+    "time": "2025-07-31T21:00"
   },
   "forecast_example": []
 }
