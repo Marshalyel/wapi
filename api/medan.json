@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-08-03T17:08:05.340Z",
+  "timestamp": "2025-08-03T18:11:40.700Z",
   "location": {
     "name": "Medan",
     "latitude": 3.625,
@@ -12,7 +12,7 @@
     "windDirection": "225°",
     "weatherCode": 3,
     "isDay": "Tidak",
-    "time": "2025-08-04T00:00"
+    "time": "2025-08-04T01:00"
   },
   "forecast_example": []
 }
