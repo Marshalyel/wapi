@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-08-05T07:16:11.428Z",
+  "timestamp": "2025-08-05T08:13:48.602Z",
   "location": {
     "name": "Medan",
     "latitude": 3.625,
@@ -8,11 +8,11 @@
   },
   "current": {
     "temperature": "34.2°C",
-    "windSpeed": "12.6 km/h",
-    "windDirection": "88°",
-    "weatherCode": 2,
+    "windSpeed": "13.3 km/h",
+    "windDirection": "90°",
+    "weatherCode": 3,
     "isDay": "Ya",
-    "time": "2025-08-05T14:15"
+    "time": "2025-08-05T15:00"
   },
   "forecast_example": []
 }
