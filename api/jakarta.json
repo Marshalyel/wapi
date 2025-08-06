@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-08-06T13:34:24.238Z",
+  "timestamp": "2025-08-06T14:13:27.353Z",
   "location": {
     "name": "Jakarta",
     "latitude": -6.25,
@@ -12,7 +12,7 @@
     "windDirection": "360°",
     "weatherCode": 2,
     "isDay": "Tidak",
-    "time": "2025-08-06T20:30"
+    "time": "2025-08-06T21:00"
   },
   "forecast_example": []
 }
