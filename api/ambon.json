@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-08-07T12:18:25.896Z",
+  "timestamp": "2025-08-07T13:32:46.443Z",
   "location": {
     "name": "Ambon",
     "latitude": -3.625,
@@ -7,12 +7,12 @@
     "timezone": "Asia/Jakarta"
   },
   "current": {
-    "temperature": "25.5°C",
+    "temperature": "25.4°C",
     "windSpeed": "5.4 km/h",
-    "windDirection": "110°",
+    "windDirection": "98°",
     "weatherCode": 3,
     "isDay": "Tidak",
-    "time": "2025-08-07T19:15"
+    "time": "2025-08-07T20:30"
   },
   "forecast_example": []
 }
