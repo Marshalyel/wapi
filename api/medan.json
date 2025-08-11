@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-08-11T16:11:06.496Z",
+  "timestamp": "2025-08-11T17:11:32.024Z",
   "location": {
     "name": "Medan",
     "latitude": 3.625,
@@ -7,12 +7,12 @@
     "timezone": "Asia/Jakarta"
   },
   "current": {
-    "temperature": "25°C",
+    "temperature": "25.5°C",
     "windSpeed": "3.1 km/h",
     "windDirection": "144°",
     "weatherCode": 3,
     "isDay": "Tidak",
-    "time": "2025-08-11T23:00"
+    "time": "2025-08-12T00:00"
   },
   "forecast_example": []
 }
