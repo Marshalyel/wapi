@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-08-31T11:00:56.291Z",
+  "timestamp": "2025-08-31T12:13:57.550Z",
   "location": {
     "name": "Makassar",
     "latitude": -5.25,
@@ -8,11 +8,11 @@
   },
   "current": {
     "temperature": "29°C",
-    "windSpeed": "16.8 km/h",
-    "windDirection": "152°",
+    "windSpeed": "13 km/h",
+    "windDirection": "136°",
     "weatherCode": 0,
     "isDay": "Tidak",
-    "time": "2025-08-31T19:00"
+    "time": "2025-08-31T20:00"
   },
   "forecast_example": []
 }
