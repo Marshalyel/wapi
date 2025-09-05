@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-04T23:01:09.731Z",
+  "timestamp": "2025-09-05T00:38:48.302Z",
   "location": {
     "name": "Bandung",
     "latitude": -6.875,
@@ -7,12 +7,12 @@
     "timezone": "Asia/Jakarta"
   },
   "current": {
-    "temperature": "19.6°C",
-    "windSpeed": "5.6 km/h",
-    "windDirection": "165°",
+    "temperature": "22.4°C",
+    "windSpeed": "4.3 km/h",
+    "windDirection": "138°",
     "weatherCode": 2,
     "isDay": "Ya",
-    "time": "2025-09-05T06:00"
+    "time": "2025-09-05T07:30"
   },
   "forecast_example": []
 }
