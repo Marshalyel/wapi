@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-21T03:31:24.259Z",
+  "timestamp": "2025-09-21T04:09:53.709Z",
   "location": {
     "name": "Makassar",
     "latitude": -5.25,
@@ -7,12 +7,12 @@
     "timezone": "Asia/Makassar"
   },
   "current": {
-    "temperature": "28.4°C",
-    "windSpeed": "14.7 km/h",
-    "windDirection": "191°",
+    "temperature": "28.3°C",
+    "windSpeed": "16.2 km/h",
+    "windDirection": "192°",
     "weatherCode": 0,
     "isDay": "Ya",
-    "time": "2025-09-21T11:30"
+    "time": "2025-09-21T12:00"
   },
   "forecast_example": []
 }
