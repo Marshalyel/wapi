@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-24T07:09:26.303Z",
+  "timestamp": "2025-09-24T08:12:07.572Z",
   "location": {
     "name": "Ambon",
     "latitude": -3.625,
@@ -8,11 +8,11 @@
   },
   "current": {
     "temperature": "25.5°C",
-    "windSpeed": "10 km/h",
-    "windDirection": "142°",
-    "weatherCode": 61,
+    "windSpeed": "11.7 km/h",
+    "windDirection": "137°",
+    "weatherCode": 80,
     "isDay": "Ya",
-    "time": "2025-09-24T14:00"
+    "time": "2025-09-24T15:00"
   },
   "forecast_example": []
 }
