@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-10-08T19:00:57.454Z",
+  "timestamp": "2025-10-08T20:09:23.356Z",
   "location": {
     "name": "Ambon",
     "latitude": -3.625,
@@ -12,7 +12,7 @@
     "windDirection": "97°",
     "weatherCode": 3,
     "isDay": "Tidak",
-    "time": "2025-10-09T02:00"
+    "time": "2025-10-09T03:00"
   },
   "forecast_example": []
 }
