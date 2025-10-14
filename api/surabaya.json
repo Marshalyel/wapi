@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-10-13T23:01:10.346Z",
+  "timestamp": "2025-10-14T00:38:54.687Z",
   "location": {
     "name": "Surabaya",
     "latitude": -7.25,
@@ -7,12 +7,12 @@
     "timezone": "Asia/Jakarta"
   },
   "current": {
-    "temperature": "26.5°C",
-    "windSpeed": "4.9 km/h",
-    "windDirection": "234°",
+    "temperature": "29°C",
+    "windSpeed": "2.6 km/h",
+    "windDirection": "196°",
     "weatherCode": 1,
     "isDay": "Ya",
-    "time": "2025-10-14T06:00"
+    "time": "2025-10-14T07:30"
   },
   "forecast_example": []
 }
