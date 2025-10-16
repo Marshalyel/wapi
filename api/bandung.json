@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-10-16T06:13:45.941Z",
+  "timestamp": "2025-10-16T07:01:08.948Z",
   "location": {
     "name": "Bandung",
     "latitude": -6.875,
@@ -8,11 +8,11 @@
   },
   "current": {
     "temperature": "31°C",
-    "windSpeed": "14.8 km/h",
-    "windDirection": "47°",
+    "windSpeed": "10.3 km/h",
+    "windDirection": "36°",
     "weatherCode": 3,
     "isDay": "Ya",
-    "time": "2025-10-16T13:00"
+    "time": "2025-10-16T14:00"
   },
   "forecast_example": []
 }
