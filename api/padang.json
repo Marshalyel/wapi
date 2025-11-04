@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-11-04T08:12:36.824Z",
+  "timestamp": "2025-11-04T09:10:57.238Z",
   "location": {
     "name": "Padang",
     "latitude": -1,
@@ -7,12 +7,12 @@
     "timezone": "Asia/Jakarta"
   },
   "current": {
-    "temperature": "28.4°C",
-    "windSpeed": "18.1 km/h",
+    "temperature": "28.5°C",
+    "windSpeed": "17.3 km/h",
     "windDirection": "317°",
     "weatherCode": 95,
     "isDay": "Ya",
-    "time": "2025-11-04T15:00"
+    "time": "2025-11-04T16:00"
   },
   "forecast_example": []
 }
