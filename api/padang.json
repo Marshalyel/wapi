@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-11-04T10:10:15.359Z",
+  "timestamp": "2025-11-04T11:01:03.105Z",
   "location": {
     "name": "Padang",
     "latitude": -1,
@@ -8,11 +8,11 @@
   },
   "current": {
     "temperature": "28.8°C",
-    "windSpeed": "17.1 km/h",
-    "windDirection": "312°",
+    "windSpeed": "18.7 km/h",
+    "windDirection": "326°",
     "weatherCode": 95,
     "isDay": "Ya",
-    "time": "2025-11-04T17:00"
+    "time": "2025-11-04T18:00"
   },
   "forecast_example": []
 }
