@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-11-11T14:01:18.938Z",
+  "timestamp": "2025-11-11T15:09:35.264Z",
   "location": {
     "name": "Ambon",
     "latitude": -3.625,
@@ -9,10 +9,10 @@
   "current": {
     "temperature": "26.8°C",
     "windSpeed": "4 km/h",
-    "windDirection": "350°",
+    "windDirection": "333°",
     "weatherCode": 3,
     "isDay": "Tidak",
-    "time": "2025-11-11T21:00"
+    "time": "2025-11-11T22:00"
   },
   "forecast_example": []
 }
