@@ -1,128 +1,78 @@
 /**
- * generate-weather.js
- *
- * Weather API Generator menggunakan data dari BMKG
- * Menggunakan kode Adm4 untuk tiap kota
+ * generate-bmkg-api-auto.js
+ * Node.js script untuk otomatis update API cuaca BMKG tiap 5 menit
  */
 
 const fs = require('fs');
-const fsp = fs.promises;
 const path = require('path');
+const xml2js = require('xml2js'); // npm i xml2js
 
-// --- DAFTAR LOKASI dengan kode Adm4 BMKG ---
 const LOCATIONS = [
-  { name: "Ambon", id: "ambon", adm4: "81.76.01.1001", timezone: "Asia/Jayapura" },
-  { name: "Jakarta", id: "jakarta", adm4: "31.71.01.1001", timezone: "Asia/Jakarta" },
-  { name: "Surabaya", id: "surabaya", adm4: "35.76.01.1001", timezone: "Asia/Jakarta" },
-  { name: "Medan", id: "medan", adm4: "12.76.01.1001", timezone: "Asia/Jakarta" },
-  { name: "Makassar", id: "makassar", adm4: "73.77.01.1001", timezone: "Asia/Makassar" },
-  { name: "Bandung", id: "bandung", adm4: "32.73.01.1001", timezone: "Asia/Jakarta" },
-  { name: "Yogyakarta", id: "yogyakarta", adm4: "34.75.01.1001", timezone: "Asia/Jakarta" },
-  { name: "Padang", id: "padang", adm4: "13.72.01.1001", timezone: "Asia/Jakarta" }
+  { name: "Ambon", id: "ambon", adm4: "81.76.01.1001" },
+  { name: "Jakarta", id: "jakarta", adm4: "31.71.06.1001" },
+  { name: "Surabaya", id: "surabaya", adm4: "35.76.01.1001" },
+  { name: "Medan", id: "medan", adm4: "12.76.01.1001" },
+  { name: "Makassar", id: "makassar", adm4: "73.77.01.1001" },
+  { name: "Bandung", id: "bandung", adm4: "32.73.01.1001" },
+  { name: "Yogyakarta", id: "yogyakarta", adm4: "34.75.01.1001" },
+  { name: "Padang", id: "padang", adm4: "13.72.01.1001" }
 ];
 
 const apiDir = path.join(__dirname, 'api');
-const MAX_RETRIES = 3;
+if (!fs.existsSync(apiDir)) fs.mkdirSync(apiDir);
 
-// Pastikan fetch ada
-let fetchFn = globalThis.fetch;
-if (!fetchFn) {
-  try {
-    const { fetch: undiciFetch } = require('undici');
-    fetchFn = undiciFetch;
-  } catch (e) {
-    console.error("Tidak ditemukan fetch global. Install 'undici' atau gunakan Node versi baru.");
-    process.exit(1);
-  }
-}
-
-// util
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-async function atomicWriteJson(filePath, obj) {
-  const tmp = filePath + '.tmp';
-  await fsp.writeFile(tmp, JSON.stringify(obj, null, 2), 'utf8');
-  await fsp.rename(tmp, filePath);
-}
-
-async function fetchWithRetry(url, tries = MAX_RETRIES) {
-  let attempt = 0, lastErr = null;
-  while (attempt < tries) {
-    try {
-      const resp = await fetchFn(url);
-      if (!resp.ok) throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
-      return await resp.json();
-    } catch (err) {
-      lastErr = err;
-      attempt++;
-      const backoff = 500 * Math.pow(2, attempt - 1);
-      console.warn(`Fetch gagal (attempt ${attempt}/${tries}): ${err.message}. Retry ${backoff}ms`);
-      await sleep(backoff);
-    }
-  }
-  throw lastErr;
-}
-
-async function fetchAndGenerateWeatherForLocation(loc) {
-  const outputPath = path.join(apiDir, `${loc.id}.json`);
-  const url = `https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4=${loc.adm4}`;
+async function fetchBMKGWeather(location) {
+  const url = `https://data.bmkg.go.id/cuaca/prakiraan-cuaca/${location.adm4}.xml`;
 
   try {
-    console.log(`Mengambil data BMKG untuk ${loc.name} (adm4=${loc.adm4})`);
-    const data = await fetchWithRetry(url);
+    console.log(`[${new Date().toLocaleTimeString()}] Mengambil data BMKG untuk ${location.name}`);
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-    // Ambil entri teratas (terbaru)
-    const firstEntry = data.data?.[0]?.cuaca?.[0];
-    if (!firstEntry) throw new Error('Data cuaca tidak ditemukan');
+    const xmlText = await res.text();
+    const json = await xml2js.parseStringPromise(xmlText, { explicitArray: false });
 
-    const localTime = new Intl.DateTimeFormat("en-CA", {
-      timeZone: loc.timezone,
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit"
-    }).format(new Date()).replace(",", "");
+    const prakiraan = json.weather.forecast.area.parameter
+      .filter(p => ["cuaca", "suhu", "kecepatan_angin", "arah_angin"].includes(p.$.id))
+      .reduce((acc, p) => {
+        acc[p.$.id] = p.timerange.value;
+        return acc;
+      }, {});
 
     const output = {
-      timestamp: localTime,
-      location: { name: loc.name, timezone: loc.timezone },
+      timestamp: new Date().toISOString(),
+      location: { name: location.name, adm4: location.adm4 },
       current: {
-        temperature: firstEntry.t + "°C",
-        humidity: firstEntry.hu + "%",
-        windSpeed: firstEntry.ws + " km/jam",
-        windDirection: firstEntry.wd,
-        weatherDescription: firstEntry.weather_desc
-      },
-      raw: data
+        weather: prakiraan.cuaca || "Tidak tersedia",
+        temperature: prakiraan.suhu || "Tidak tersedia",
+        windSpeed: prakiraan.kecepatan_angin || "Tidak tersedia",
+        windDirection: prakiraan.arah_angin || "Tidak tersedia",
+        time: new Date().toISOString()
+      }
     };
 
-    await atomicWriteJson(outputPath, output);
-    console.log(`Berhasil menulis: ${outputPath}`);
-    return `api/${loc.id}.json`;
+    fs.writeFileSync(path.join(apiDir, `${location.id}.json`), JSON.stringify(output, null, 2));
+    return location.id;
+
   } catch (err) {
-    console.error(`Error ${loc.name}: ${err.message}`);
+    console.error(`Gagal mengambil data untuk ${location.name}: ${err.message}`);
     return null;
   }
 }
 
-async function generateAllWeatherAPIs() {
-  await fsp.mkdir(apiDir, { recursive: true });
-  const generatedFiles = [];
+async function updateAllLocations() {
+  console.log(`\n[${new Date().toLocaleTimeString()}] Memulai update semua lokasi...`);
   for (const loc of LOCATIONS) {
-    const file = await fetchAndGenerateWeatherForLocation(loc);
-    if (file) generatedFiles.push(file);
-    await sleep(200);
+    await fetchBMKGWeather(loc);
   }
-
-  const indexFilePath = path.join(apiDir, 'locations.json');
-  await atomicWriteJson(indexFilePath, LOCATIONS.map(l => ({ id: l.id, name: l.name })));
-  generatedFiles.push('api/locations.json');
-
-  console.log("Selesai membuat semua API lokasi.");
-  return generatedFiles;
+  // Update index
+  fs.writeFileSync(path.join(apiDir, 'locations.json'),
+    JSON.stringify(LOCATIONS.map(l => ({ id: l.id, name: l.name })), null, 2));
+  console.log(`[${new Date().toLocaleTimeString()}] Semua API kota diperbarui.\n`);
 }
 
-generateAllWeatherAPIs()
-  .then(files => console.log("Generated:", files))
-  .catch(err => console.error("Fatal error:", err));
+// Jalankan pertama kali
+updateAllLocations();
+
+// Set interval setiap 5 menit
+setInterval(updateAllLocations, 5 * 60 * 1000); // 5 menit = 300000 ms
