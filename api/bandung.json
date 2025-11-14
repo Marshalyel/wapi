@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-11-14T22:01:00.829Z",
+  "timestamp": "2025-11-15 05:30:57 a.m.",
   "location": {
     "name": "Bandung",
     "latitude": -6.875,
@@ -7,12 +7,38 @@
     "timezone": "Asia/Jakarta"
   },
   "current": {
-    "temperature": "21.7°C",
-    "windSpeed": "2.1 km/h",
-    "windDirection": "329°",
-    "weatherCode": 1,
-    "isDay": "Tidak",
-    "time": "2025-11-15T05:00"
+    "temperature": "21.5°C",
+    "windSpeed": "1.5 km/h",
+    "windDirection": "346°",
+    "weatherCode": 0,
+    "isDay": "Ya",
+    "time": "2025-11-15T05:30"
   },
-  "forecast_example": []
+  "raw": {
+    "latitude": -6.875,
+    "longitude": 107.5,
+    "generationtime_ms": 0.04482269287109375,
+    "utc_offset_seconds": 25200,
+    "timezone": "Asia/Jakarta",
+    "timezone_abbreviation": "GMT+7",
+    "elevation": 703,
+    "current_weather_units": {
+      "time": "iso8601",
+      "interval": "seconds",
+      "temperature": "°C",
+      "windspeed": "km/h",
+      "winddirection": "°",
+      "is_day": "",
+      "weathercode": "wmo code"
+    },
+    "current_weather": {
+      "time": "2025-11-15T05:30",
+      "interval": 900,
+      "temperature": 21.5,
+      "windspeed": 1.5,
+      "winddirection": 346,
+      "is_day": 1,
+      "weathercode": 0
+    }
+  }
 }

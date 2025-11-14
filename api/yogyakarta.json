@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-11-14T22:01:00.933Z",
+  "timestamp": "2025-11-15 05:30:58 a.m.",
   "location": {
     "name": "Yogyakarta",
     "latitude": -7.875,
@@ -7,12 +7,38 @@
     "timezone": "Asia/Jakarta"
   },
   "current": {
-    "temperature": "24.2°C",
-    "windSpeed": "2.5 km/h",
-    "windDirection": "352°",
+    "temperature": "24.1°C",
+    "windSpeed": "2.6 km/h",
+    "windDirection": "344°",
     "weatherCode": 3,
-    "isDay": "Tidak",
-    "time": "2025-11-15T05:00"
+    "isDay": "Ya",
+    "time": "2025-11-15T05:30"
   },
-  "forecast_example": []
+  "raw": {
+    "latitude": -7.875,
+    "longitude": 110.25,
+    "generationtime_ms": 0.043392181396484375,
+    "utc_offset_seconds": 25200,
+    "timezone": "Asia/Jakarta",
+    "timezone_abbreviation": "GMT+7",
+    "elevation": 106,
+    "current_weather_units": {
+      "time": "iso8601",
+      "interval": "seconds",
+      "temperature": "°C",
+      "windspeed": "km/h",
+      "winddirection": "°",
+      "is_day": "",
+      "weathercode": "wmo code"
+    },
+    "current_weather": {
+      "time": "2025-11-15T05:30",
+      "interval": 900,
+      "temperature": 24.1,
+      "windspeed": 2.6,
+      "winddirection": 344,
+      "is_day": 1,
+      "weathercode": 3
+    }
+  }
 }

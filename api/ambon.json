@@ -1,18 +1,44 @@
 {
-  "timestamp": "2025-11-14T22:01:00.291Z",
+  "timestamp": "2025-11-15 07:30:57 a.m.",
   "location": {
     "name": "Ambon",
     "latitude": -3.625,
     "longitude": 128.125,
-    "timezone": "Asia/Jakarta"
+    "timezone": "Asia/Jayapura"
   },
   "current": {
     "temperature": "27.4°C",
-    "windSpeed": "4.3 km/h",
-    "windDirection": "355°",
+    "windSpeed": "4.7 km/h",
+    "windDirection": "4°",
     "weatherCode": 3,
     "isDay": "Ya",
-    "time": "2025-11-15T05:00"
+    "time": "2025-11-15T07:30"
   },
-  "forecast_example": []
+  "raw": {
+    "latitude": -3.625,
+    "longitude": 128.125,
+    "generationtime_ms": 0.5687475204467773,
+    "utc_offset_seconds": 32400,
+    "timezone": "Asia/Jayapura",
+    "timezone_abbreviation": "GMT+9",
+    "elevation": 5,
+    "current_weather_units": {
+      "time": "iso8601",
+      "interval": "seconds",
+      "temperature": "°C",
+      "windspeed": "km/h",
+      "winddirection": "°",
+      "is_day": "",
+      "weathercode": "wmo code"
+    },
+    "current_weather": {
+      "time": "2025-11-15T07:30",
+      "interval": 900,
+      "temperature": 27.4,
+      "windspeed": 4.7,
+      "winddirection": 4,
+      "is_day": 1,
+      "weathercode": 3
+    }
+  }
 }

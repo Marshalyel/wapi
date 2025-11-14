@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-11-14T22:01:00.723Z",
+  "timestamp": "2025-11-15 06:30:57 a.m.",
   "location": {
     "name": "Makassar",
     "latitude": -5.25,
@@ -7,12 +7,38 @@
     "timezone": "Asia/Makassar"
   },
   "current": {
-    "temperature": "27.9°C",
-    "windSpeed": "19.7 km/h",
-    "windDirection": "305°",
+    "temperature": "27.8°C",
+    "windSpeed": "17.2 km/h",
+    "windDirection": "303°",
     "weatherCode": 95,
     "isDay": "Ya",
-    "time": "2025-11-15T06:00"
+    "time": "2025-11-15T06:30"
   },
-  "forecast_example": []
+  "raw": {
+    "latitude": -5.25,
+    "longitude": 119.375,
+    "generationtime_ms": 0.0457763671875,
+    "utc_offset_seconds": 28800,
+    "timezone": "Asia/Makassar",
+    "timezone_abbreviation": "GMT+8",
+    "elevation": 5,
+    "current_weather_units": {
+      "time": "iso8601",
+      "interval": "seconds",
+      "temperature": "°C",
+      "windspeed": "km/h",
+      "winddirection": "°",
+      "is_day": "",
+      "weathercode": "wmo code"
+    },
+    "current_weather": {
+      "time": "2025-11-15T06:30",
+      "interval": 900,
+      "temperature": 27.8,
+      "windspeed": 17.2,
+      "winddirection": 303,
+      "is_day": 1,
+      "weathercode": 95
+    }
+  }
 }

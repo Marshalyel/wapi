@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-11-14T22:01:00.515Z",
+  "timestamp": "2025-11-15 05:30:57 a.m.",
   "location": {
     "name": "Surabaya",
     "latitude": -7.25,
@@ -7,12 +7,38 @@
     "timezone": "Asia/Jakarta"
   },
   "current": {
-    "temperature": "24.7°C",
-    "windSpeed": "6.3 km/h",
-    "windDirection": "246°",
-    "weatherCode": 2,
-    "isDay": "Tidak",
-    "time": "2025-11-15T05:00"
+    "temperature": "24.8°C",
+    "windSpeed": "4.7 km/h",
+    "windDirection": "238°",
+    "weatherCode": 1,
+    "isDay": "Ya",
+    "time": "2025-11-15T05:30"
   },
-  "forecast_example": []
+  "raw": {
+    "latitude": -7.25,
+    "longitude": 112.75,
+    "generationtime_ms": 0.08475780487060547,
+    "utc_offset_seconds": 25200,
+    "timezone": "Asia/Jakarta",
+    "timezone_abbreviation": "GMT+7",
+    "elevation": 8,
+    "current_weather_units": {
+      "time": "iso8601",
+      "interval": "seconds",
+      "temperature": "°C",
+      "windspeed": "km/h",
+      "winddirection": "°",
+      "is_day": "",
+      "weathercode": "wmo code"
+    },
+    "current_weather": {
+      "time": "2025-11-15T05:30",
+      "interval": 900,
+      "temperature": 24.8,
+      "windspeed": 4.7,
+      "winddirection": 238,
+      "is_day": 1,
+      "weathercode": 1
+    }
+  }
 }
