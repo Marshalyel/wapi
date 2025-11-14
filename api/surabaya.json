@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-11-15 05:30:57 a.m.",
+  "timestamp": "2025-11-15 05:31:29 a.m.",
   "location": {
     "name": "Surabaya",
     "latitude": -7.25,
@@ -17,7 +17,7 @@
   "raw": {
     "latitude": -7.25,
     "longitude": 112.75,
-    "generationtime_ms": 0.08475780487060547,
+    "generationtime_ms": 0.060439109802246094,
     "utc_offset_seconds": 25200,
     "timezone": "Asia/Jakarta",
     "timezone_abbreviation": "GMT+7",

@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-11-15 07:30:57 a.m.",
+  "timestamp": "2025-11-15 07:31:29 a.m.",
   "location": {
     "name": "Ambon",
     "latitude": -3.625,
@@ -17,7 +17,7 @@
   "raw": {
     "latitude": -3.625,
     "longitude": 128.125,
-    "generationtime_ms": 0.5687475204467773,
+    "generationtime_ms": 0.07092952728271484,
     "utc_offset_seconds": 32400,
     "timezone": "Asia/Jayapura",
     "timezone_abbreviation": "GMT+9",
