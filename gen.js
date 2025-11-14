@@ -1,104 +1,180 @@
+/**
+ * generate-weather.js
+ *
+ * Weather API Generator (WAPI)
+ * Mengambil data cuaca dari Open-Meteo untuk beberapa kota,
+ * menyimpan JSON dengan timestamp lokal sesuai timezone masing-masing kota.
+ *
+ * Requirements:
+ * - Node.js >= 18 atau install 'undici' (npm i undici)
+ */
+
 const fs = require('fs');
+const fsp = fs.promises;
 const path = require('path');
 
-// --- Daftar Lokasi yang ingin Anda sediakan ---
-// Anda bisa menambahkan atau mengurangi lokasi di sini.
-// Pastikan lintang (latitude), bujur (longitude), dan timezone sudah benar.
+// --- DAFTAR LOKASI (pastikan timezone sesuai IANA) ---
 const LOCATIONS = [
-    { name: "Ambon", id: "ambon", latitude: -3.6596, longitude: 128.1884, timezone: "Asia/Jakarta" },
-    { name: "Jakarta", id: "jakarta", latitude: -6.2088, longitude: 106.8456, timezone: "Asia/Jakarta" },
-    { name: "Surabaya", id: "surabaya", latitude: -7.2575, longitude: 112.7521, timezone: "Asia/Jakarta" },
-    { name: "Medan", id: "medan", latitude: 3.5952, longitude: 98.6722, timezone: "Asia/Jakarta" },
-    { name: "Makassar", id: "makassar", latitude: -5.1477, longitude: 119.4327, timezone: "Asia/Makassar" },
-    { name: "Bandung", id: "bandung", latitude: -6.9175, longitude: 107.6191, timezone: "Asia/Jakarta" },
-    { name: "Yogyakarta", id: "yogyakarta", latitude: -7.7956, longitude: 110.3695, timezone: "Asia/Jakarta" },
-    { name: "Padang", id: "padang", latitude: -0.9517, longitude: 100.3546, timezone: "Asia/Jakarta" }
+  { name: "Ambon", id: "ambon", latitude: -3.6596, longitude: 128.1884, timezone: "Asia/Jayapura" }, // WIT
+  { name: "Jakarta", id: "jakarta", latitude: -6.2088, longitude: 106.8456, timezone: "Asia/Jakarta" },
+  { name: "Surabaya", id: "surabaya", latitude: -7.2575, longitude: 112.7521, timezone: "Asia/Jakarta" },
+  { name: "Medan", id: "medan", latitude: 3.5952, longitude: 98.6722, timezone: "Asia/Jakarta" },
+  { name: "Makassar", id: "makassar", latitude: -5.1477, longitude: 119.4327, timezone: "Asia/Makassar" },
+  { name: "Bandung", id: "bandung", latitude: -6.9175, longitude: 107.6191, timezone: "Asia/Jakarta" },
+  { name: "Yogyakarta", id: "yogyakarta", latitude: -7.7956, longitude: 110.3695, timezone: "Asia/Jakarta" },
+  { name: "Padang", id: "padang", latitude: -0.9517, longitude: 100.3546, timezone: "Asia/Jakarta" }
 ];
 
-// Pastikan direktori 'api' ada
 const apiDir = path.join(__dirname, 'api');
-if (!fs.existsSync(apiDir)){
-    fs.mkdirSync(apiDir);
+const CONCURRENCY = 3; // jumlah request paralel
+const MAX_RETRIES = 3;
+
+// --- Pastikan fetch ada ---
+let fetchFn = globalThis.fetch;
+if (!fetchFn) {
+  try {
+    const { fetch: undiciFetch } = require('undici');
+    fetchFn = undiciFetch;
+  } catch (e) {
+    console.error("Node.js tidak memiliki fetch. Gunakan Node >=18 atau install 'undici'.");
+    process.exit(1);
+  }
 }
 
-// Fungsi asinkron untuk mengambil data cuaca untuk satu lokasi
-async function fetchAndGenerateWeatherForLocation(location) {
-    const WEATHER_API_URL = `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current_weather=true&timezone=${encodeURIComponent(location.timezone)}`;
+// --- util sleep ---
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
-    let rawWeatherData;
+// --- util atomic write ---
+async function atomicWriteJson(filePath, obj) {
+  const tmp = `${filePath}.tmp`;
+  await fsp.writeFile(tmp, JSON.stringify(obj, null, 2), 'utf8');
+  await fsp.rename(tmp, filePath);
+}
+
+// --- util fallback baca file lama ---
+async function readExistingJson(filePath) {
+  try {
+    const raw = await fsp.readFile(filePath, 'utf8');
+    return JSON.parse(raw);
+  } catch (e) {
+    return null;
+  }
+}
+
+// --- fetch dengan retry ---
+async function fetchWithRetry(url, tries = MAX_RETRIES) {
+  let attempt = 0;
+  let lastErr = null;
+  while (attempt < tries) {
     try {
-        console.log(`Mengambil data untuk ${location.name} dari API: ${WEATHER_API_URL}`);
-        const response = await fetch(WEATHER_API_URL);
-        if (!response.ok) {
-            throw new Error(`Gagal mengambil data cuaca untuk ${location.name}: ${response.statusText}`);
-        }
-        rawWeatherData = await response.json();
-        console.log(`Data cuaca untuk ${location.name} berhasil diambil.`);
-    } catch (error) {
-        console.error(`Error saat mengambil data cuaca untuk ${location.name}:`, error.message);
-        // Untuk skenario multi-lokasi, jika gagal mengambil, kita bisa mengembalikan null
-        // atau mencoba membaca dari file yang sudah ada jika tersedia.
-        // Untuk contoh ini, kita akan mencatat error dan melanjutkan ke lokasi berikutnya.
-        console.warn(`Menggunakan data dummy atau skip untuk ${location.name} karena gagal.`);
-        return null; // Mengembalikan null jika gagal
+      const resp = await fetchFn(url);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
+      const json = await resp.json();
+      return json;
+    } catch (err) {
+      lastErr = err;
+      attempt++;
+      const backoff = 500 * Math.pow(2, attempt - 1);
+      console.warn(`Fetch gagal (attempt ${attempt}/${tries}): ${err.message}, retry ${backoff}ms`);
+      await sleep(backoff);
     }
+  }
+  throw lastErr;
+}
 
-    const currentWeather = rawWeatherData.current_weather;
+// --- proses satu lokasi ---
+async function fetchAndGenerateWeatherForLocation(location) {
+  const params = new URLSearchParams({
+    latitude: String(location.latitude),
+    longitude: String(location.longitude),
+    current_weather: 'true',
+    timezone: location.timezone
+  });
+  const WEATHER_API_URL = `https://api.open-meteo.com/v1/forecast?${params.toString()}`;
+  const outputPath = path.join(apiDir, `${location.id}.json`);
 
-    // Logika untuk memproses data dan membuat format API yang diinginkan
+  try {
+    console.log(`Mengambil data untuk ${location.name} dari API`);
+    const rawWeatherData = await fetchWithRetry(WEATHER_API_URL);
+    const currentWeather = rawWeatherData?.current_weather;
+    if (!currentWeather) throw new Error('current_weather tidak tersedia');
+
+    // Timestamp lokal sesuai timezone kota
+    const localTime = new Intl.DateTimeFormat("en-CA", {
+      timeZone: location.timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    }).format(new Date()).replace(",", "");
+
     const weatherApiOutput = {
-      timestamp: new Date().toISOString(),
+      timestamp: localTime,
       location: {
-        name: location.name, // Tambahkan nama kota ke output JSON
-        latitude: rawWeatherData.latitude,
-        longitude: rawWeatherData.longitude,
-        timezone: rawWeatherData.timezone
+        name: location.name,
+        latitude: rawWeatherData.latitude ?? location.latitude,
+        longitude: rawWeatherData.longitude ?? location.longitude,
+        timezone: rawWeatherData.timezone ?? location.timezone
       },
       current: {
         temperature: `${currentWeather.temperature}°C`,
         windSpeed: `${currentWeather.windspeed} km/h`,
         windDirection: `${currentWeather.winddirection}°`,
         weatherCode: currentWeather.weathercode,
-        isDay: currentWeather.is_day === 1 ? 'Ya' : 'Tidak', // Lebih ramah bahasa Indonesia
+        isDay: currentWeather.is_day === 1 ? 'Ya' : 'Tidak',
         time: currentWeather.time
       },
-      // Anda bisa menambahkan data forecast di sini jika diambil dari API yang mendukungnya
-      forecast_example: []
+      raw: rawWeatherData
     };
 
-    // Menulis output JSON ke file api/[location.id].json
-    const outputPath = path.join(apiDir, `${location.id}.json`);
-    fs.writeFileSync(outputPath, JSON.stringify(weatherApiOutput, null, 2));
+    await atomicWriteJson(outputPath, weatherApiOutput);
+    console.log(`OK: api/${location.id}.json`);
+    return `api/${location.id}.json`;
 
-    console.log(`API cuaca untuk ${location.name} berhasil diperbarui di: ${outputPath}`);
-    return location.id; // Mengembalikan ID lokasi yang berhasil dibuat
-}
-
-// Fungsi utama untuk menjalankan proses untuk semua lokasi
-async function generateAllWeatherAPIs() {
-    const generatedFiles = [];
-    for (const location of LOCATIONS) {
-        const fileId = await fetchAndGenerateWeatherForLocation(location);
-        if (fileId) {
-            generatedFiles.push(`api/${fileId}.json`);
-        }
+  } catch (err) {
+    console.error(`Error untuk ${location.name}: ${err.message}`);
+    const existing = await readExistingJson(outputPath);
+    if (existing) {
+      existing._fallback = { note: `Data dipakai dari file lokal karena fetch gagal`, error: err.message };
+      await atomicWriteJson(outputPath, existing);
+      console.log(`Fallback digunakan untuk ${location.name}`);
+      return `api/${location.id}.json (fallback)`;
     }
-
-    // Buat file index yang berisi daftar lokasi yang tersedia
-    const indexFilePath = path.join(apiDir, 'locations.json');
-    fs.writeFileSync(indexFilePath, JSON.stringify(LOCATIONS.map(loc => ({ id: loc.id, name: loc.name })), null, 2));
-    generatedFiles.push(`api/locations.json`);
-
-    console.log("Semua API lokasi telah dibuat/diperbarui.");
-    return generatedFiles; // Mengembalikan daftar file yang berhasil dibuat
+    return null;
+  }
 }
 
-// Panggil fungsi utama
+// --- chunk helper ---
+function chunkArray(arr, size) {
+  const out = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
+}
+
+// --- fungsi utama ---
+async function generateAllWeatherAPIs() {
+  await fsp.mkdir(apiDir, { recursive: true });
+  const generatedFiles = [];
+  const batches = chunkArray(LOCATIONS, CONCURRENCY);
+
+  for (const batch of batches) {
+    const promises = batch.map(loc => fetchAndGenerateWeatherForLocation(loc));
+    const results = await Promise.allSettled(promises);
+    for (const r of results) if (r.status === 'fulfilled' && r.value) generatedFiles.push(r.value);
+    await sleep(200);
+  }
+
+  const indexFilePath = path.join(apiDir, 'locations.json');
+  await atomicWriteJson(indexFilePath, LOCATIONS.map(loc => ({ id: loc.id, name: loc.name })));
+  generatedFiles.push('api/locations.json');
+
+  console.log("Semua API lokasi telah dibuat/diperbarui.");
+  return generatedFiles;
+}
+
+// --- jalankan ---
 generateAllWeatherAPIs()
-    .then(() => {
-        console.log("Proses pembuatan API cuaca selesai.");
-    })
-    .catch(error => {
-        console.error("Kesalahan fatal saat membuat API lokasi:", error);
-        process.exit(1); // Keluar dengan error
-    });
+  .then(files => console.log("Selesai. Files:", files))
+  .catch(err => { console.error("Kesalahan fatal:", err); process.exit(1); });
